@@ -1,0 +1,160 @@
+---
+title: "Assignment"
+author: "Jyothi"
+date: "31 October 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+
+
+```{r}
+install.packages("tidyverse")
+install.packages("plotly")
+install.packages(c("classint", "OpenStreetMap", "tmap"))
+install.packages("maptools")
+install.packages(c("RColorBrewer", "Sp", "rgeos", "tmap", "tmaptools", "sf", "downloader", "rgdal", "geojsonio"))
+install.packages("shinyjs")
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+#library(tidyverse)
+library(plotly)
+library(rlang)
+library(maptools)
+library(RColorBrewer)
+library(classInt)
+#library(OpenStreetMap)
+library(sp)
+library(rgeos)
+#install.packages('rgdal')
+library(rgdal)
+library(tmap)
+library(tmaptools)
+library(sf)
+library(geojsonio)
+#install.packages('shinyjs')
+library(shinyjs)
+library(methods)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+getwd()
+Tourismdata <- read.csv('Tourismdatab2.csv')
+
+```
+
+##examine the data
+
+```{r}
+
+Tourismdata
+class(Tourismdata)
+summary(Tourismdata)
+names(Tourismdata)
+```
+
+
+##PLOT
+
+```{r}
+plot(Tourismdata$YEAR2003,Tourismdata$YEAR2012)
+
+```
+```{r}
+install.packages('plotly')
+library(plotly)
+plot_ly(Tourismdata, x = ~ STATES, y = ~ YEAR2012, text = ~Tourismdata$STATES, type = "scatter", mode = "markers")
+
+```
+```{r}
+library(plotly)
+plot_ly(Tourismdata, x = ~ YEAR2003, y = ~ YEAR2012, text = ~Tourismdata$STATES, type = "scatter", mode = "markers")
+
+```
+##Reading a shapefile / any other spatial data source
+
+```{r}
+library("sp","rgdal")
+
+EW <- read_shape("Export_Output.shp",as.sf = "TRUE")
+
+qtm(EW)
+
+```
+
+```{r}
+
+class(EW)
+
+```
+##Making Some Maps
+
+```{r}
+library(tmap)
+library(tmaptools)
+tmap_mode("plot")
+qtm(EW, fill = "YEAR2012")
+tmap_options(max.categories = 35)
+#?qtm
+```
+
+
+
+```{r}
+INDIA <- read_osm(EW, type = "esri", zoom = NULL)
+qtm(INDIA) + 
+  tm_shape(EW) + 
+  tm_polygons("YEAR2012", 
+        style="jenks",
+        palette="YlOrBr",
+        midpoint=NA,
+        title="TOURISM DATA FOR YEAR 2012",
+        alpha = 0.75) + 
+  tm_compass(position = c("left", "bottom"),type = "arrow") + 
+  tm_scale_bar(position = c("left", "bottom")) +
+  tm_layout(title = "TOURISM DATA FOR YEAR 2012", legend.position = c("right", "bottom"))
+```
+
+
+```{r}
+tm_shape(EW) +
+    tm_polygons(c("YEAR2003", "STATES"), 
+        style=c("jenks", "pretty"),
+        palette=list("YlOrBr", "Purples"),
+        auto.palette.mapping=FALSE,
+        title=c("YEAR2003", "STATES"))
+
+```
+
+
+```{r}
+
+#it's possible to explicitly tell R which package to get the function from with the :: operator...
+library('shinyjs')
+tmaptools::palette_explorer()
+library('rlang')
+library('tmap')
+tmap_mode("view")
+```
+
+```{r}
+tm_shape(EW) +
+    tm_polygons("YEAR2012",
+        style="jenks",
+        palette="PuRd",
+        midpoint=NA,
+        title="TOURISM OF INDIA IN YEAR 2013 STATEWISE")
+
+```
